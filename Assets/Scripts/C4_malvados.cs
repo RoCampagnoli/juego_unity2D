@@ -2,15 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class C4_malvados : MonoBehaviour { 
+public class C4_malvados : Character {
 
     public enum EnumMalvado { m_verde, m_violeta };
     public EnumMalvado malvado;
-
-    [SerializeField] private int vidaMalvado;
-
     private int danio;
-
     private SpriteRenderer miSprite;
 
 
@@ -21,7 +17,7 @@ public class C4_malvados : MonoBehaviour {
     [SerializeField] private float distanciaMov;
 
     [Header("Persecucion")]
-    [SerializeField] private Transform player; 
+    [SerializeField] private Transform player;
     // arrastrar el Player aca en el inspector
     [SerializeField] private float detectionRange = 2f;
     // que tan lejos detecta al jugador
@@ -35,14 +31,14 @@ public class C4_malvados : MonoBehaviour {
 
     private bool moviendoDerecha = true;
 
-    void Start(){
-       posicionInicial = transform.position;
-       TipoMalvado();
-       miSprite = GetComponent<SpriteRenderer>();
+    void Start() {
+        posicionInicial = transform.position;
+        TipoMalvado();
+        miSprite = GetComponent<SpriteRenderer>();
 
     }
 
-    void Update(){
+    void Update() {
         float distanciaJugador = Vector3.Distance(transform.position, player.position);
 
         if (distanciaJugador < detectionRange) {
@@ -60,22 +56,24 @@ public class C4_malvados : MonoBehaviour {
     }
 
     private void TipoMalvado() {
-         switch (malvado) {
+        switch (malvado) {
             case EnumMalvado.m_verde:
-                vidaMalvado = 50;
+                vida = 50f;
+                vidaMaxima = 50f;
                 danio = 5;
                 velocidadMov = 1f;
                 distanciaMov = 2f;
                 break;
             case EnumMalvado.m_violeta:
-                vidaMalvado = 100;
+                vida = 100f;
+                vidaMaxima = 100f;
                 danio = 10;
                 velocidadMov = 3f;
                 distanciaMov = 4f;
                 break;
         }
     }
-    
+
     public int getDanio() {
         return danio;
     }
@@ -115,13 +113,13 @@ public class C4_malvados : MonoBehaviour {
     }
 
     void GirarMalvado() {
-        Vector3 ls=transform.localScale;//guardo la escala actual del objeto
+        Vector3 ls = transform.localScale;//guardo la escala actual del objeto
         ls.x *= -1;//cambio el signo de la escala en x para girar el objeto
         transform.localScale = ls;//aplico el cambio
     }
 
     void desplazamientoMalvado() {
-        
+
         if (moviendoDerecha) {
             transform.Translate(Vector2.right * velocidadMov * Time.deltaTime);
             if (transform.position.x >= posicionInicial.x + distanciaMov) {
@@ -137,12 +135,12 @@ public class C4_malvados : MonoBehaviour {
         }
     }
 
-    public void RecibirDanio(int cantidad) {
-        vidaMalvado -= cantidad;
-        Debug.Log(gameObject.name + " recibio " + cantidad + " de daño, vida restante: " + vidaMalvado);
+    public override void PerderVida(float cantidad) {
+        base.PerderVida(cantidad);
+        Debug.Log(gameObject.name + " recibio " + cantidad + " de daño, vida restante: " + vida);
         StartCoroutine(ParpadearDanio());
 
-        if (vidaMalvado <= 0) {
+        if (vida <= 0) {
             Destroy(gameObject);
         }
     }
