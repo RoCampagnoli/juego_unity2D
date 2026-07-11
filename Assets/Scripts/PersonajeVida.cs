@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class PersonajeVida : MonoBehaviour{
-    [SerializeField] public float vida=100;
-    [SerializeField] public float vidaMaxima = 100; // referencia para la barra y el texto
+public class PersonajeVida : Character{
+    // referencia para la barra y el texto
     private bool estoyMuerto = false;
 
     public Image healtBar;//barra de vida
@@ -40,17 +39,18 @@ public class PersonajeVida : MonoBehaviour{
         AtacarConEspada();
     }
 
-    public void SumarVidaConPocion(int pocion){
-        vida += pocion;
+    public override void SumarVida(float pocion){
+       base.SumarVida(pocion);
         ActualizarUI();
 
         Debug.Log("Vida restante: " + vida);
     }
-    public void PerderVida(int danioMalvado) 
+
+    public override void PerderVida(float danioMalvado) 
     {
         if (estoyMuerto) return;// si ya esta muerto, ignoramos cualquier daño nuevo
 
-        vida -= danioMalvado;
+        base.PerderVida(danioMalvado);
         ActualizarUI();
 
         Debug.Log("Vida restante: " + vida);
@@ -111,7 +111,7 @@ public class PersonajeVida : MonoBehaviour{
         if (enemigoGolpeado != null) {
             C4_malvados malvado = enemigoGolpeado.GetComponent<C4_malvados>();
             if (malvado != null) {
-                malvado.RecibirDanio(danioEspada);
+                malvado.PerderVida(danioEspada);
             }
         }
     }
