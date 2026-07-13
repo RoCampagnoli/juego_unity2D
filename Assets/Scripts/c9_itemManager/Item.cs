@@ -52,8 +52,7 @@ public class Item : MonoBehaviour {
 
                 }
                 if (objId == "llave") {
-                    collision.GetComponent<PersonajeVida>().tengoLlave = true;
-                    collision.GetComponent<PersonajeVida>().ActualizarTextos();
+                    collision.GetComponent<PersonajeVida>().SumarLlave();
 
                 }
                

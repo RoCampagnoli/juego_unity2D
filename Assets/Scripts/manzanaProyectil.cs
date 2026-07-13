@@ -25,10 +25,10 @@ public class manzanaProyectil : MonoBehaviour {
         ImpactarSiEsEnemigo(collision.gameObject);
     }
 
-    private void ImpactarSiEsEnemigo(GameObject otro) {
-        C4_malvados enemigo = otro.GetComponent<C4_malvados>();
+    private void ImpactarSiEsEnemigo(GameObject malito) {
+        C4_malvados enemigo = malito.GetComponent<C4_malvados>();
         if (enemigo != null) {
-            enemigo.RecibirDanio(danio);
+            enemigo.PerderVida(danio);
             Destroy(gameObject); // la manzana se destruye al impactar, no sigue de largo
         }
     }

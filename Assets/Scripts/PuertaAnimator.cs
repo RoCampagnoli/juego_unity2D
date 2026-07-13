@@ -21,7 +21,7 @@ public class PuertaAnimator : MonoBehaviour {
         if (puertaAbierta) return;
         jugador = collision.GetComponent<PersonajeVida>();
 
-        if (jugador != null && jugador.tengoLlave) {
+        if (jugador != null && jugador.TengoTodasLasLlaves()) {
             animator.enabled = true;
             aSource.Play();
             puertaAbierta = true;

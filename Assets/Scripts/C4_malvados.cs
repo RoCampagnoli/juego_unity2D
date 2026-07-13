@@ -7,7 +7,6 @@ public class C4_malvados : Character {
     public enum EnumMalvado { m_verde, m_violeta };
     public EnumMalvado malvado;
     private int danio;
-    private SpriteRenderer miSprite;
 
 
     //[SerializeField] private Timer timer;// cada tanto tiempo va a aparecer el malo
@@ -34,7 +33,6 @@ public class C4_malvados : Character {
     void Start() {
         posicionInicial = transform.position;
         TipoMalvado();
-        miSprite = GetComponent<SpriteRenderer>();
 
     }
 
@@ -138,15 +136,10 @@ public class C4_malvados : Character {
     public override void PerderVida(float cantidad) {
         base.PerderVida(cantidad);
         Debug.Log(gameObject.name + " recibio " + cantidad + " de daño, vida restante: " + vida);
-        StartCoroutine(ParpadearDanio());
 
         if (vida <= 0) {
             Destroy(gameObject);
         }
     }
-    private IEnumerator ParpadearDanio() {
-        miSprite.color = Color.red;
-        yield return new WaitForSeconds(0.15f);//es la "pausa" (espera 0.15 segundos sin congelar el resto del juego)
-        miSprite.color = Color.white;
-    }
+   
 }

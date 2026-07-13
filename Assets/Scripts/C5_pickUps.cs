@@ -37,13 +37,13 @@ public class C5_pickUps : MonoBehaviour{
     {
         switch (pocion){
             case TipoElemento.pVerde:
-                jugador.SumarVidaConPocion(20);
+                jugador.SumarVida(20f);
                 break;
             case TipoElemento.pAzul:
-                jugador.SumarVidaConPocion(10);
+                jugador.SumarVida(10f);
                 break;
             case TipoElemento.pRoja:
-                jugador.SumarVidaConPocion(5);
+                jugador.SumarVida(5f);
                 break;
         }
     }

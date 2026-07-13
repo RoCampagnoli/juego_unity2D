@@ -20,7 +20,7 @@ public class C5_colisiones : MonoBehaviour{
     {
          malvado = collision.gameObject.GetComponent<C4_malvados>();
 
-         if (malvado != null &&  (jugador != null && jugador.vida>0)){
+         if (malvado != null &&  (jugador != null && !jugador.EstoyMuerto())){
 
              jugador.PerderVida(malvado.getDanio());
 
@@ -31,7 +31,7 @@ public class C5_colisiones : MonoBehaviour{
         // mientras el enemigo me sigue tocando, sigue restando vida,
         // respetando el cooldown del enemigo
 
-        if (malvadoTocando != null && (jugador != null && jugador.vida > 0)) {
+        if (malvadoTocando != null && (jugador != null && !jugador.EstoyMuerto())) {
             if (malvadoTocando.PuedeGolpear()) {
                 jugador.PerderVida(malvadoTocando.getDanio());
                 Debug.Log("tocando");

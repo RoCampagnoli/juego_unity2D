@@ -26,6 +26,9 @@ public class C3_movimiento : MonoBehaviour {
 
     private PersonajeVida personaje;
 
+    private bool estaEnElSuelo = false;
+
+
     void Start() {
         
         rb = GetComponent<Rigidbody2D>();//quiero acceder a las propiedades del rigid body
@@ -42,6 +45,8 @@ public class C3_movimiento : MonoBehaviour {
 
     private void Update()
     {
+        if (personaje != null && personaje.EstoyMuerto()) return;
+
         Sprint(multSpeed);
         MovH(1);
         //MovV(1);
@@ -72,30 +77,20 @@ public class C3_movimiento : MonoBehaviour {
             rb.velocity = new Vector2(rb.velocity.x, fuerzaSalto);
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("suelo"))
-        {
-            saltoActivo = false;
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if (!collision.gameObject.CompareTag("suelo")) return;
+
+        // recorremos los puntos de contacto para asegurarnos de que
+        // el impacto viene desde ABAJO (aterrizaje), no desde el costado (pared)
+        foreach (ContactPoint2D contacto in collision.contacts) {
+            if (contacto.normal.y > 0.5f) {
+                saltoActivo = false;
+                estaEnElSuelo = true;
+                break;
+            }
         }
     }
-    /*private void MovV(int a)
-     {
-         //MOVIMIENTO VERTICAL
-         if (Input.GetKey(KeyCode.W))
-         {
-             movimientoVertical = 1;
-         }
-         else if (Input.GetKey(KeyCode.S))
-         {
-             movimientoVertical = -1;
-         }
-         else
-         {
-             movimientoVertical = 0;
-         }
 
-     }*/
 
     //PARA CORRER
     private void Sprint(float multSpeed)
@@ -112,15 +107,11 @@ public class C3_movimiento : MonoBehaviour {
     }
 
     private void FixedUpdate() {
-        /*
-                //1ro creo un vector de movimiento. le asignamos las variables que determinan la direccion
-                mov = new Vector2(movimientoHorizontal, movimientoVertical);
-                mov = mov.normalized;//todas las direcciones tienen la misma velocidad
-                //rb.AddForce(movVector * velActual * Time.fixedDeltaTime);// se va a mover constantemente sin frenar..
-                //si quiero que frene tengo que usar el velocity
-                rb.velocity = mov * speed; //con esto, cuando dejo de presionar la tecla debe quedarse qquieto
-               */
-        // Movimiento en X, preservando la velocidad en Y del motor físico
+        if (personaje != null && personaje.EstoyMuerto()) {
+            rb.velocity = new Vector2(0f, rb.velocity.y); // sin movimiento horizontal, pero cae por gravedad
+            return;
+        }
+       
         rb.velocity = new Vector2(movimientoHorizontal * speed, rb.velocity.y);
         
         AnimacionPlayer();
@@ -157,6 +148,9 @@ public class C3_movimiento : MonoBehaviour {
         }
     }
 
-    
+    public bool EstaEnElSuelo() {
+        return estaEnElSuelo;
+    }
+
 }
 

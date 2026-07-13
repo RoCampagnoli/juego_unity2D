@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+
 public class PersonajeVida : Character{
     // referencia para la barra y el texto
     private bool estoyMuerto = false;
@@ -18,7 +19,10 @@ public class PersonajeVida : Character{
 
 
     public bool tengoEspada = false;
-    public bool tengoLlave = false;
+
+    public int llavesRecolectadas = 0;
+    [SerializeField] private int llavesNecesarias = 3;
+
     private Animator animator;
 
     [Header("Ajuste visual al morir")]
@@ -29,8 +33,24 @@ public class PersonajeVida : Character{
     [SerializeField] private float rangoEspada = 2f; // que tan lejos llega el golpe
     [SerializeField] private int danioEspada = 40;
 
+    [Header("Colores de la barra de vida")]
+    [SerializeField] private Color colorVidaNormal = Color.green;
+    [SerializeField] private Color colorVidaBaja = Color.red;
+    [SerializeField] private Color colorVidaExtra = new Color(1f, 0.84f, 0f); // dorado
+
+    [Header("Sonido de Game Over")]
+    [SerializeField] private AudioClip sonidoGameOver;
+    private AudioSource aSource;
+
+    [Header("Game Over")]
+    [SerializeField] private GameObject panelGameOver;
+    [SerializeField] private Button botonVolverJugar;
+    [SerializeField] private Button botonSalir;
+
     void Start(){
         animator = GetComponent<Animator>();
+        aSource = GetComponent<AudioSource>();
+
         ActualizarUI();
         ActualizarTextos();
     }
@@ -62,8 +82,37 @@ public class PersonajeVida : Character{
         estoyMuerto = true;
         Debug.Log("jugador muerto");
         animator.SetTrigger("muerte");
-        // por ahora no destruimos ni desactivamos nada, solo se reproduce la animacion
-        // y el personaje se queda quieto en pantalla
+
+        if (sonidoGameOver != null && aSource != null) {
+            aSource.PlayOneShot(sonidoGameOver);
+        }
+
+        if (panelGameOver != null) {
+            panelGameOver.SetActive(true);
+            ConectarBotonesGameOver();
+
+        }
+
+        StartCoroutine(EsperarYFijarEnElSuelo());
+
+    }
+
+    private void ConectarBotonesGameOver() {
+        ManagerScenes manager = FindObjectOfType<ManagerScenes>();
+        if (manager == null) {
+            Debug.LogWarning("No se encontro ManagerScenes. Asegurate de arrancar el juego desde la escena menu.");
+            return;
+        }
+        botonVolverJugar.onClick.AddListener(manager.VolverAJugar);
+        botonSalir.onClick.AddListener(manager.Salir);
+    }
+
+    private IEnumerator EsperarYFijarEnElSuelo() {
+        C3_movimiento movimiento = GetComponent<C3_movimiento>();
+        // esperamos, frame a frame, hasta que la fisica lo haya asentado en el piso
+        while (movimiento != null && !movimiento.EstaEnElSuelo()) {
+            yield return null;
+        }
         // desactivamos el collider para que no siga ocupando el espacio vertical
         // de antes, ya que el sprite ahora se ve "caido" pero el collider no rota con el
         Collider2D miCollider = GetComponent<Collider2D>();
@@ -79,13 +128,15 @@ public class PersonajeVida : Character{
             miRigidbody.bodyType = RigidbodyType2D.Kinematic;
         }
 
+
         // ajustamos la posicion Y relativa a donde estaba parado, no a un valor fijo,
         // para que funcione sea cual sea la altura del piso donde murio
         Vector3 posicionActual = transform.position;
         transform.position = new Vector3(posicionActual.x, posicionActual.y + ajusteYAlMorir, posicionActual.z);
-        // por ahora no destruimos nada, solo se reproduce la animacion
-        // y el personaje se queda quieto en pantalla
+
+
     }
+
 
     public bool EstoyMuerto() {
         return estoyMuerto;
@@ -116,6 +167,16 @@ public class PersonajeVida : Character{
         }
     }
 
+
+    public void SumarLlave() {
+        llavesRecolectadas++;
+        ActualizarTextos();
+    }
+
+    public bool TengoTodasLasLlaves() {
+        return llavesRecolectadas >= llavesNecesarias;
+    }
+
     private void ActualizarUI() {
         // la barra no puede pasar de 1, asi que la calculamos aparte clampeada
         healtBar.fillAmount = Mathf.Clamp01(vida / vidaMaxima);
@@ -123,7 +184,9 @@ public class PersonajeVida : Character{
         if (textoVida != null) {
             textoVida.text = vida + "/" + vidaMaxima;
         }
-       
+        ActualizarColorBarra();
+
+
     }
     public void ActualizarTextos() {
         if (tengoEspada) {
@@ -131,11 +194,19 @@ public class PersonajeVida : Character{
         } else {
             textoEspada.text = "0/1";
         }
-        if (tengoLlave) {
-            textoLlave.text = "1/1";
+
+        textoLlave.text = llavesRecolectadas + "/" + llavesNecesarias;
+
+    }
+    private void ActualizarColorBarra() {
+        if (vida > 100) {
+            healtBar.color = colorVidaExtra; // dorado
+        } else if (vida < 50) {
+            healtBar.color = colorVidaBaja; // rojo
         } else {
-            textoLlave.text = "0/1";
+            healtBar.color = colorVidaNormal; // el color de siempre
         }
     }
 
+   
 }
